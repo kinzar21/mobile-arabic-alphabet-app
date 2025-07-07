@@ -195,7 +195,7 @@
 
     function playAudio(e, audioFile) {
       e.stopPropagation();
-      new Audio(`audio/${audioFile}`).play();
+      new Audio(`${audioFile}`).play();
     }
 
     function setupSwipe() {
