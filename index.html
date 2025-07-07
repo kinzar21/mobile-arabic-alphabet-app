@@ -140,118 +140,193 @@
       height: 24px;
       fill: #2d3748;
     }
+
+    .dropdown-toggle {
+      position: absolute;
+      top: 60px;
+      background-color: #ffffffcc;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100px;
+      background-color: #ffffffdd;
+      padding: 1rem;
+      border-radius: 12px;
+      max-height: 200px;
+      overflow-y: scroll;
+      display: none;
+      z-index: 9;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .dropdown-menu label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
+
   </style>
 </head>
 <body>
 
   <h1 class="card-header">Tap to flip. Swipe to traverse.</h1>
+
+  <button class="dropdown-toggle" id="dropdownToggle">Select Letters</button>
+  <div class="dropdown-menu" id="dropdownMenu">
+    <!-- Checkboxes will be inserted by JavaScript -->
+  </div>
+
   <div class="card-container" id="cardContainer"></div>
 
+
   <script>
-    const arabicLetters = [
-      { arabic: 'ا', transliteration: 'Alif', audioFile: 'alif.mp3' },
-      { arabic: 'ب', transliteration: 'Baa', audioFile: 'baa.mp3' },
-      { arabic: 'ت', transliteration: 'Taa', audioFile: 'taa.mp3' },
-      { arabic: 'ث', transliteration: 'Thaa', audioFile: 'thaa.mp3' },
-      { arabic: 'ج', transliteration: 'Jeem', audioFile: 'jeem.mp3' },
-      { arabic: 'ح', transliteration: 'Ḥaa', audioFile: 'haa.mp3' },
-      { arabic: 'خ', transliteration: 'Khaa', audioFile: 'khaa.mp3' },
-      { arabic: 'د', transliteration: 'Daal', audioFile: 'daal.mp3' },
-      { arabic: 'ذ', transliteration: 'Thaal', audioFile: 'thaal.mp3' },
-      { arabic: 'ر', transliteration: 'Raa', audioFile: 'raa.mp3' },
-      { arabic: 'ز', transliteration: 'Zaay', audioFile: 'zaay.mp3' },
-      { arabic: 'س', transliteration: 'Seen', audioFile: 'seen.mp3' },
-      { arabic: 'ش', transliteration: 'Sheen', audioFile: 'sheen.mp3' },
-      { arabic: 'ص', transliteration: 'Ṣaad', audioFile: 'saad.mp3' },
-      { arabic: 'ض', transliteration: 'Ḍaad', audioFile: 'daad.mp3' },
-      { arabic: 'ط', transliteration: 'Ṭaa', audioFile: 'taa2.mp3' },
-      { arabic: 'ظ', transliteration: 'Ẓaa', audioFile: 'dhaa.mp3' },
-      { arabic: 'ع', transliteration: 'ʿAyn', audioFile: 'ayn.mp3' },
-      { arabic: 'غ', transliteration: 'Ghayn', audioFile: 'ghayn.mp3' },
-      { arabic: 'ف', transliteration: 'Faa', audioFile: 'faa.mp3' },
-      { arabic: 'ق', transliteration: 'Qaaf', audioFile: 'qaaf.mp3' },
-      { arabic: 'ك', transliteration: 'Kaaf', audioFile: 'kaaf.mp3' },
-      { arabic: 'ل', transliteration: 'Laam', audioFile: 'laam.mp3' },
-      { arabic: 'م', transliteration: 'Meem', audioFile: 'meem.mp3' },
-      { arabic: 'ن', transliteration: 'Noon', audioFile: 'noon.mp3' },
-      { arabic: 'هـ', transliteration: 'Haa', audioFile: 'haa2.mp3' },
-      { arabic: 'و', transliteration: 'Waaw', audioFile: 'waaw.mp3' },
-      { arabic: 'ء', transliteration: 'Hamza', audioFile: 'hamza.mp3' },
-      { arabic: 'ي', transliteration: 'Yaa', audioFile: 'yaa.mp3' }
-    ];
+  const arabicLetters = [
+    { arabic: 'ا', transliteration: 'Alif', audioFile: 'alif.mp3' },
+    { arabic: 'ب', transliteration: 'Baa', audioFile: 'baa.mp3' },
+    { arabic: 'ت', transliteration: 'Taa', audioFile: 'taa.mp3' },
+    { arabic: 'ث', transliteration: 'Thaa', audioFile: 'thaa.mp3' },
+    { arabic: 'ج', transliteration: 'Jeem', audioFile: 'jeem.mp3' },
+    { arabic: 'ح', transliteration: 'Ḥaa', audioFile: 'haa.mp3' },
+    { arabic: 'خ', transliteration: 'Khaa', audioFile: 'khaa.mp3' },
+    { arabic: 'د', transliteration: 'Daal', audioFile: 'daal.mp3' },
+    { arabic: 'ذ', transliteration: 'Thaal', audioFile: 'thaal.mp3' },
+    { arabic: 'ر', transliteration: 'Raa', audioFile: 'raa.mp3' },
+    { arabic: 'ز', transliteration: 'Zaay', audioFile: 'zaay.mp3' },
+    { arabic: 'س', transliteration: 'Seen', audioFile: 'seen.mp3' },
+    { arabic: 'ش', transliteration: 'Sheen', audioFile: 'sheen.mp3' },
+    { arabic: 'ص', transliteration: 'Ṣaad', audioFile: 'saad.mp3' },
+    { arabic: 'ض', transliteration: 'Ḍaad', audioFile: 'daad.mp3' },
+    { arabic: 'ط', transliteration: 'Ṭaa', audioFile: 'taa2.mp3' },
+    { arabic: 'ظ', transliteration: 'Ẓaa', audioFile: 'dhaa.mp3' },
+    { arabic: 'ع', transliteration: 'ʿAyn', audioFile: 'ayn.mp3' },
+    { arabic: 'غ', transliteration: 'Ghayn', audioFile: 'ghayn.mp3' },
+    { arabic: 'ف', transliteration: 'Faa', audioFile: 'faa.mp3' },
+    { arabic: 'ق', transliteration: 'Qaaf', audioFile: 'qaaf.mp3' },
+    { arabic: 'ك', transliteration: 'Kaaf', audioFile: 'kaaf.mp3' },
+    { arabic: 'ل', transliteration: 'Laam', audioFile: 'laam.mp3' },
+    { arabic: 'م', transliteration: 'Meem', audioFile: 'meem.mp3' },
+    { arabic: 'ن', transliteration: 'Noon', audioFile: 'noon.mp3' },
+    { arabic: 'هـ', transliteration: 'Haa', audioFile: 'haa2.mp3' },
+    { arabic: 'و', transliteration: 'Waaw', audioFile: 'waaw.mp3' },
+    { arabic: 'ء', transliteration: 'Hamza', audioFile: 'hamza.mp3' },
+    { arabic: 'ي', transliteration: 'Yaa', audioFile: 'yaa.mp3' }
+  ];
 
-    const container = document.getElementById('cardContainer');
-    let currentIndex = 0;
+  let filteredLetters = [...arabicLetters];
+  const container = document.getElementById('cardContainer');
+  let currentIndex = 0;
 
-    function createCard(letter) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'card';
+  function createCard(letter) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card';
 
-      const inner = document.createElement('div');
-      inner.className = 'card-inner';
+    const inner = document.createElement('div');
+    inner.className = 'card-inner';
 
-      inner.innerHTML = `
-        <div class="card-front">
-          <div class="arabic-letter">${letter.arabic}</div>
-        </div>
-        <div class="card-back">
-          <div class="transliteration">${letter.transliteration}</div>
-          <button class="speaker-btn">
-            <svg class="speaker-icon" viewBox="0 0 24 24">
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-            </svg>
-          </button>
-          <textarea class="notes-box" placeholder="Your notes"></textarea>
-        </div>
-      `;
+    inner.innerHTML = `
+      <div class="card-front">
+        <div class="arabic-letter">${letter.arabic}</div>
+      </div>
+      <div class="card-back">
+        <div class="transliteration">${letter.transliteration}</div>
+        <button class="speaker-btn">
+          <svg class="speaker-icon" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+        <textarea class="notes-box" placeholder="Your notes"></textarea>
+      </div>
+    `;
 
-      wrapper.appendChild(inner);
+    wrapper.appendChild(inner);
 
-      // Flip toggle
-      wrapper.addEventListener('click', (e) => {
-        if (!e.target.closest('button') && !e.target.closest('textarea')) {
-          inner.classList.toggle('flipped');
-        }
-      });
-
-      // Speaker button action
-      inner.querySelector('.speaker-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        playAudio(letter.audioFile);
-      });
-
-      return wrapper;
-    }
-
-    function renderCard(index) {
-      container.innerHTML = '';
-      const card = createCard(arabicLetters[index]);
-      container.appendChild(card);
-    }
-
-    function playAudio(audioFile) {
-      new Audio(audioFile).play();
-    }
-
-    function setupSwipe() {
-      let startX = 0;
-      container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-      container.addEventListener('touchend', e => {
-        const endX = e.changedTouches[0].clientX;
-        if (endX - startX < -50 && currentIndex < arabicLetters.length - 1) {
-          currentIndex++;
-          renderCard(currentIndex);
-        } else if (endX - startX > 50 && currentIndex > 0) {
-          currentIndex--;
-          renderCard(currentIndex);
-        }
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      renderCard(currentIndex);
-      setupSwipe();
+    wrapper.addEventListener('click', (e) => {
+      if (!e.target.closest('button') && !e.target.closest('textarea')) {
+        inner.classList.toggle('flipped');
+      }
     });
-  </script>
+
+    inner.querySelector('.speaker-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      playAudio(letter.audioFile);
+    });
+
+    return wrapper;
+  }
+
+  function renderCard(index) {
+    container.innerHTML = '';
+    if (filteredLetters.length === 0) {
+      container.innerHTML = `<div style="color:white;font-weight:bold;text-align:center;">No letters selected.</div>`;
+      return;
+    }
+    const card = createCard(filteredLetters[index]);
+    container.appendChild(card);
+  }
+
+  function playAudio(audioFile) {
+    new Audio(audioFile).play();
+  }
+
+  function setupSwipe() {
+    let startX = 0;
+    container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    container.addEventListener('touchend', e => {
+      const endX = e.changedTouches[0].clientX;
+      if (endX - startX < -50 && currentIndex < filteredLetters.length - 1) {
+        currentIndex++;
+        renderCard(currentIndex);
+      } else if (endX - startX > 50 && currentIndex > 0) {
+        currentIndex--;
+        renderCard(currentIndex);
+      }
+    });
+  }
+
+  function createLetterSelector() {
+    const dropdown = document.getElementById('letterDropdown');
+    arabicLetters.forEach((letter, i) => {
+      const label = document.createElement('label');
+      label.style.display = 'block';
+      label.style.padding = '2px 0';
+      label.innerHTML = `
+        <input type="checkbox" data-index="${i}" checked>
+        ${letter.arabic} (${letter.transliteration})
+      `;
+      dropdown.appendChild(label);
+    });
+
+    document.getElementById('applySelection').addEventListener('click', () => {
+      const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+      const selected = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) selected.push(arabicLetters[parseInt(cb.dataset.index)]);
+      });
+      filteredLetters = selected;
+      currentIndex = 0;
+      renderCard(currentIndex);
+      dropdown.style.display = 'none';
+    });
+  }
+
+  document.getElementById('toggleDropdown').addEventListener('click', () => {
+    const dropdown = document.getElementById('letterDropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    createLetterSelector();
+    renderCard(currentIndex);
+    setupSwipe();
+  });
+</script>
+
 </body>
 </html>
