@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arabic Flashcards with Vowels</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom, #6ac28b, #2b634b);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .card-container {
+      position: relative;
+      width: 90%;
+      max-width: 300px;
+      height: 400px;
+      perspective: 1000px;
+    }
+
+    .card-wrapper {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      position: relative;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      margin: auto;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+      transform-origin: center center;
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-front {
+      background: rgb(225, 225, 247);
+      z-index: 2;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, #ffffff, #e3c1ff);
+      color: #2d3748;
+      transform: rotateY(180deg);
+      z-index: 1;
+    }
+
+    .arabic-letter {
+      font-family: 'Amiri', serif;
+      font-size: 5rem;
+      color: #234e3c;
+    }
+
+    .transliteration {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .notes-box {
+      width: 90%;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: none;
+    }
+
+    .speaker-btn {
+      margin-top: 1rem;
+      background: #a0e5ba;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .speaker-icon {
+      width: 24px;
+      height: 24px;
+      fill: #2d3748;
+    }
+
+    .card-header {
+      position: absolute;
+      top: 1rem;
+      width: 100%;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      font-family: 'Inter', sans-serif;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="card-header">Tap to flip. Swipe to traverse.</div>
+  <div class="card-container">
+    <div class="card-wrapper" id="cardWrapper"></div>
+  </div>
+
+  <script>
+    const vowels = [
+      { symbol: '\u064E', name: 'Fatha', sound: 'a' },
+      { symbol: '\u0650', name: 'Kasra', sound: 'ee' },
+      { symbol: '\u064F', name: 'Damma', sound: 'oo' }
+    ];
+
+    const transliterationMap = {
+      'ا': '', 'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j', 'ح': 'ḥ', 'خ': 'kh', 'د': 'd',
+      'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh', 'ص': 'ṣ', 'ض': 'ḍ', 'ط': 'ṭ',
+      'ظ': 'ẓ', 'ع': 'ʿ', 'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm',
+      'ن': 'n', 'هـ': 'h', 'و': 'w', 'ء': '', 'ي': 'y'
+    };
+
+    const baseLetters = Object.keys(transliterationMap);
+
+    const flashcards = [];
+    baseLetters.forEach(letter => {
+      vowels.forEach(vowel => {
+        flashcards.push({
+          arabic: letter + vowel.symbol,
+          transliteration: transliterationMap[letter] + vowel.sound,
+          audioFile: `${letter}_${vowel.name.toLowerCase()}.mp3`
+        });
+      });
+    });
+
+    let currentIndex = 0;
+    const wrapper = document.getElementById('cardWrapper');
+
+    function playAudio(file) {
+      new Audio(file).play();
+    }
+
+    function createCard(entry) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const front = document.createElement('div');
+      front.className = 'card-front';
+      front.innerHTML = `<div class="arabic-letter">${entry.arabic}</div>`;
+
+      const back = document.createElement('div');
+      back.className = 'card-back';
+      back.innerHTML = `
+        <div class="transliteration">${entry.transliteration}</div>
+        <button class="speaker-btn">
+          <svg class="speaker-icon" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+        <textarea class="notes-box" placeholder="Your notes"></textarea>
+      `;
+
+      card.appendChild(front);
+      card.appendChild(back);
+
+      card.addEventListener('click', (e) => {
+        if (!e.target.closest('button') && !e.target.closest('textarea')) {
+          card.classList.toggle('flipped');
+        }
+      });
+
+      back.querySelector('.speaker-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        playAudio(entry.audioFile);
+      });
+
+      return card;
+    }
+
+    function renderCard(index) {
+      wrapper.innerHTML = '';
+      const card = createCard(flashcards[index]);
+      wrapper.appendChild(card);
+    }
+
+    function setupSwipe() {
+      let startX = 0;
+      wrapper.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+      wrapper.addEventListener('touchend', e => {
+        const endX = e.changedTouches[0].clientX;
+        if (endX - startX < -50) {
+          currentIndex = (currentIndex + 1) % flashcards.length;
+          renderCard(currentIndex);
+        } else if (endX - startX > 50) {
+          currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+          renderCard(currentIndex);
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCard(currentIndex);
+      setupSwipe();
+    });
+  </script>
+</body>
+</html>
