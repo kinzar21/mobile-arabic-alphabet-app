@@ -16,6 +16,19 @@
       overflow: hidden;
     }
 
+    .card-header {
+      position: absolute;
+      top: 2rem;
+      text-align: center;
+      width: 100%;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      font-family: 'Inter', sans-serif;
+      z-index: 10;
+    }
+
     .card-container {
       position: relative;
       width: 90%;
@@ -130,6 +143,8 @@
   </style>
 </head>
 <body>
+
+  <h1 class="card-header">Tap to flip. Swipe to traverse.</h1>
   <div class="card-container" id="cardContainer"></div>
 
   <script>
