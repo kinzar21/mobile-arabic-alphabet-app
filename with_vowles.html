@@ -39,6 +39,7 @@
       transform-style: preserve-3d;
       transition: transform 0.6s ease;
       transform-origin: center center;
+      overflow: hidden;
     }
 
     .card.flipped {
@@ -50,6 +51,9 @@
       position: absolute;
       width: 100%;
       height: 100%;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
       backface-visibility: hidden;
       border-radius: 20px;
       display: flex;
@@ -63,6 +67,7 @@
     .card-front {
       background: rgb(225, 225, 247);
       z-index: 2;
+      min-height: 300px;
     }
 
     .card-back {
@@ -124,40 +129,80 @@
       font-family: 'Inter', sans-serif;
       z-index: 10;
     }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffffdd;
+      padding: 1rem;
+      border-radius: 12px;
+      z-index: 20;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .dropdown-menu label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
   <div class="card-header">Tap to flip. Swipe to traverse.</div>
+
+  <button id="selectLettersBtn" style="position:absolute; top:2.5rem; left:50%; transform:translateX(-50%); z-index:15; margin-top: 0.5rem; padding:0.5rem 1rem; border-radius:8px; font-weight:bold; background:#ffffffcc; border:none; cursor:pointer;">Select Letters/Vowels</button>
+
+  <div id="letterDropdown" class="dropdown-menu">
+    <div id="checkboxContainer"></div>
+    <div style="margin-top:1rem;">
+      <label><input type="checkbox" id="fathaCheckbox" checked> Fatha</label>
+      <label><input type="checkbox" id="kasraCheckbox" checked> Kasra</label>
+      <label><input type="checkbox" id="dammaCheckbox" checked> Damma</label>
+    </div>
+    <div style="margin-top:10px; text-align:center;">
+      <button id="applySelection">Apply</button>
+    </div>
+  </div>
+
   <div class="card-container">
     <div class="card-wrapper" id="cardWrapper"></div>
   </div>
 
   <script>
     const vowels = [
-      { symbol: '\u064E', name: 'Fatha', sound: 'a' },
-      { symbol: '\u0650', name: 'Kasra', sound: 'ee' },
-      { symbol: '\u064F', name: 'Damma', sound: 'oo' }
+      { symbol: '\u064E', name: 'Fatha', sound: 'a', checkboxId: 'fathaCheckbox' },
+      { symbol: '\u0650', name: 'Kasra', sound: 'ee', checkboxId: 'kasraCheckbox' },
+      { symbol: '\u064F', name: 'Damma', sound: 'oo', checkboxId: 'dammaCheckbox' }
     ];
 
     const transliterationMap = {
       'ا': '', 'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j', 'ح': 'ḥ', 'خ': 'kh', 'د': 'd',
       'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh', 'ص': 'ṣ', 'ض': 'ḍ', 'ط': 'ṭ',
       'ظ': 'ẓ', 'ع': 'ʿ', 'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm',
-      'ن': 'n', 'هـ': 'h', 'و': 'w', 'ء': '', 'ي': 'y'
+      'ن': 'n', 'ه': 'h', 'و': 'w', 'ء': '', 'ي': 'y'
     };
 
     const baseLetters = Object.keys(transliterationMap);
 
-    const flashcards = [];
-    baseLetters.forEach(letter => {
-      vowels.forEach(vowel => {
-        flashcards.push({
-          arabic: letter + vowel.symbol,
-          transliteration: transliterationMap[letter] + vowel.sound,
-          audioFile: `${letter}_${vowel.name.toLowerCase()}.mp3`
+    let flashcards = [];
+
+    function generateFlashcards() {
+      flashcards = [];
+      const activeVowels = vowels.filter(v => document.getElementById(v.checkboxId)?.checked);
+      const activeLetters = baseLetters.filter((_, i) => document.querySelector(`#checkboxContainer input[data-index='${i}']`)?.checked);
+      activeLetters.forEach(letter => {
+        activeVowels.forEach(vowel => {
+          flashcards.push({
+            arabic: letter + vowel.symbol,
+            transliteration: transliterationMap[letter] + vowel.sound,
+            audioFile: `${letter}_${vowel.name.toLowerCase()}.mp3`
+          });
         });
       });
-    });
+    }
 
     let currentIndex = 0;
     const wrapper = document.getElementById('cardWrapper');
@@ -205,8 +250,12 @@
 
     function renderCard(index) {
       wrapper.innerHTML = '';
-      const card = createCard(flashcards[index]);
-      wrapper.appendChild(card);
+      if (flashcards.length > 0) {
+        const card = createCard(flashcards[index]);
+        wrapper.appendChild(card);
+      } else {
+        wrapper.innerHTML = '<div style="color:white; font-weight:bold; text-align:center;">No cards to show</div>';
+      }
     }
 
     function setupSwipe() {
@@ -224,7 +273,31 @@
       });
     }
 
+    function createLetterSelector() {
+      const container = document.getElementById('checkboxContainer');
+      container.innerHTML = '';
+      baseLetters.forEach((letter, i) => {
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" data-index="${i}" checked> ${letter}`;
+        container.appendChild(label);
+      });
+    }
+
+    document.getElementById('selectLettersBtn').addEventListener('click', () => {
+      const dropdown = document.getElementById('letterDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.getElementById('applySelection').addEventListener('click', () => {
+      generateFlashcards();
+      currentIndex = 0;
+      renderCard(currentIndex);
+      document.getElementById('letterDropdown').style.display = 'none';
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
+      createLetterSelector();
+      generateFlashcards();
       renderCard(currentIndex);
       setupSwipe();
     });
