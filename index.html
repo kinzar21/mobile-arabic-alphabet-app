@@ -229,6 +229,16 @@
       overflow-y: auto;
     }
 
+    .dropdown-menu button {
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      background: #e6f1ec;
+      color: #234e3c;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
 
   </style>
 </head>
@@ -242,16 +252,21 @@
     <div class="practice-mode">
       <label for="practiceMode">Practice Mode:</label>
       <select id="practiceMode">
-        <option value="ordered" selected>Practice in order</option>
-        <option value="shuffled">Practice out of order</option>
+        <option value="ordered" selected>In order</option>
+        <option value="shuffled">Out of order</option>
       </select>
     </div>
   </div>
 
   <div id="letterDropdown" class="dropdown-menu">
     <div id="checkboxContainer"></div>
-    <button id="applySelection" style="margin-top: 10px;">Apply</button>
+    <div style="display: flex; justify-content: space-between; margin-top: 10px; gap: 0.5rem;">
+      <button id="selectAllBtn">Select All</button>
+      <button id="deselectAllBtn">Deselect All</button>
+      <button id="applySelection">Apply</button>
+    </div>
   </div>
+
 
   <div class="card-container" id="cardContainer"></div>
 
@@ -362,7 +377,8 @@
   }
 
   function createLetterSelector() {
-    const dropdown = document.getElementById('letterDropdown');
+    const checkboxContainer = document.getElementById('checkboxContainer');
+    checkboxContainer.innerHTML = ''; // clear previous checkboxes
     arabicLetters.forEach((letter, i) => {
       const label = document.createElement('label');
       label.style.display = 'block';
@@ -371,11 +387,11 @@
         <input type="checkbox" data-index="${i}" checked>
         ${letter.arabic} (${letter.transliteration})
       `;
-      dropdown.appendChild(label);
+      checkboxContainer.appendChild(label);
     });
 
     document.getElementById('applySelection').addEventListener('click', () => {
-      const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+      const checkboxes = document.querySelectorAll('#checkboxContainer input[type="checkbox"]');
       const selected = [];
       checkboxes.forEach(cb => {
         if (cb.checked) selected.push(arabicLetters[parseInt(cb.dataset.index)]);
@@ -384,6 +400,16 @@
       currentIndex = 0;
       renderCard(currentIndex);
       dropdown.style.display = 'none';
+    });
+
+    document.getElementById('selectAllBtn').addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('#checkboxContainer input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = true);
+    });
+
+    document.getElementById('deselectAllBtn').addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('#checkboxContainer input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = false);
     });
   }
 
@@ -425,6 +451,7 @@
     renderCard(currentIndex);
     setupSwipe();
   });
+
 </script>
 
 </body>
