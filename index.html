@@ -18,9 +18,9 @@
 
     .card-header {
       position: absolute;
-      top: 2rem;
-      text-align: center;
+      top: 1rem;
       width: 100%;
+      text-align: center;
       font-size: 1.2rem;
       font-weight: bold;
       color: white;
@@ -172,16 +172,71 @@
       font-size: 1rem;
     }
 
+    .top-controls {
+      position: absolute;
+      top: 3.5rem; /* below the header */
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      z-index: 5;
+      flex-wrap: wrap;
+    }
+
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 5rem; /* Pushes down from header */
+      gap: 0.75rem;
+      z-index: 5;
+      position: relative;
+    }
+
+    #selectLettersBtn {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      background: #ffffffcc;
+      color: #234e3c;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .practice-mode {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .practice-mode label {
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .practice-mode select {
+      padding: 0.3rem;
+      border-radius: 6px;
+    }
+
   </style>
 </head>
-  
 <body>
-  <div class="card-header">
-    Tap to flip. Swipe to traverse.
-    <button id="toggleDropdown">Select Letters</button>
-    <div id="letterDropdown" style="display:none; background:#fff; color:#000; padding:10px; border-radius:10px; max-height:300px; overflow-y:auto; margin-top:10px;">
-    <!-- Checkboxes will be added here -->
-      <button id="applySelection" style="margin-top:10px;">Apply</button>
+
+  <div class="card-header">Tap to flip. Swipe to traverse.</div>
+
+  <div class="top-controls">
+    <button id="selectLettersBtn">Select Letters</button>
+
+    <div class="practice-mode">
+      <label for="practiceMode">Practice Mode:</label>
+      <select id="practiceMode">
+        <option value="ordered" selected>Practice in order</option>
+        <option value="shuffled">Practice out of order</option>
+      </select>
     </div>
   </div>
 
@@ -221,6 +276,8 @@
   ];
 
   let filteredLetters = [...arabicLetters];
+  let practiceMode = 'ordered';
+
   const container = document.getElementById('cardContainer');
   let currentIndex = 0;
 
@@ -317,6 +374,33 @@
     });
   }
 
+  function shuffleArray(arr) {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  function applyPracticeMode() {
+    if (practiceMode === 'shuffled') {
+      filteredLetters = shuffleArray(filteredLetters);
+    } else {
+      // Put them back in original order based on master list
+      filteredLetters = arabicLetters.filter(l =>
+        filteredLetters.find(f => f.arabic === l.arabic)
+      );
+    }
+    currentIndex = 0;
+  }
+
+  document.getElementById('practiceMode').addEventListener('change', (e) => {
+    practiceMode = e.target.value;
+    applyPracticeMode();
+    renderCard(currentIndex);
+  });
+
   document.getElementById('toggleDropdown').addEventListener('click', () => {
     const dropdown = document.getElementById('letterDropdown');
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
@@ -324,6 +408,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     createLetterSelector();
+    applyPracticeMode();
     renderCard(currentIndex);
     setupSwipe();
   });
