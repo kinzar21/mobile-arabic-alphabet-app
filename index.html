@@ -8,7 +8,7 @@
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom, #78bd96, #234e3c);
+      background: linear-gradient(to bottom, #6ac28b, #2b634b);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -37,20 +37,17 @@
       perspective: 1000px;
     }
 
-    .card {
-      position: absolute;
+    .card-wrapper {
       width: 100%;
       height: 100%;
+      overflow: hidden;
       border-radius: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      transition: transform 0.6s ease, opacity 0.3s ease;
-      transform-style: preserve-3d;
-      backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 1rem;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      height: 100%;
     }
 
     .card-inner {
@@ -73,23 +70,23 @@
       justify-content: center;
       flex-direction: column;
       padding: 1rem;
+      will-change: transform;
     }
 
     .card-front {
       background: rgb(225, 225, 247);
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .card-back {
       background: linear-gradient(135deg, #ffffff, #e3c1ff);
       color: #2d3748;
       transform: rotateY(180deg);
+      z-index: 1;
     }
 
     .card-inner.flipped {
-      transform: rotateY(180deg);
-    }
-
-    .card.flipped {
       transform: rotateY(180deg);
     }
 
@@ -166,7 +163,7 @@
 
     .top-controls {
       position: absolute;
-      top: 3.5rem; /* below the header */
+      top: 3.5rem;
       width: 100%;
       display: flex;
       justify-content: center;
@@ -179,7 +176,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: 5rem; /* Pushes down from header */
+      margin-top: 5rem;
       gap: 0.75rem;
       z-index: 5;
       position: relative;
@@ -210,8 +207,18 @@
     }
 
     .practice-mode select {
-      padding: 0.3rem;
-      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      border: none;
+      background-color: #ffffffcc;
+      color: #234e3c;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
     }
 
     #checkboxContainer {
@@ -231,7 +238,6 @@
       color: #234e3c;
       box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     }
-
   </style>
 </head>
 <body>
