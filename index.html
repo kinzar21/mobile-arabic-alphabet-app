@@ -222,6 +222,14 @@
       border-radius: 6px;
     }
 
+    #checkboxContainer {
+      display: flex;
+      flex-direction: column;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+
   </style>
 </head>
 <body>
@@ -238,6 +246,11 @@
         <option value="shuffled">Practice out of order</option>
       </select>
     </div>
+  </div>
+
+  <div id="letterDropdown" class="dropdown-menu">
+    <div id="checkboxContainer"></div>
+    <button id="applySelection" style="margin-top: 10px;">Apply</button>
   </div>
 
   <div class="card-container" id="cardContainer"></div>
@@ -401,7 +414,7 @@
     renderCard(currentIndex);
   });
 
-  document.getElementById('toggleDropdown').addEventListener('click', () => {
+  document.getElementById('selectLettersBtn').addEventListener('click', () => {
     const dropdown = document.getElementById('letterDropdown');
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   });
