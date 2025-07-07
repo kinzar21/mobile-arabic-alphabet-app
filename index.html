@@ -174,17 +174,18 @@
 
   </style>
 </head>
+  
 <body>
-
-  <h1 class="card-header">Tap to flip. Swipe to traverse.</h1>
-
-  <button class="dropdown-toggle" id="dropdownToggle">Select Letters</button>
-  <div class="dropdown-menu" id="dropdownMenu">
-    <!-- Checkboxes will be inserted by JavaScript -->
+  <div class="card-header">
+    Tap to flip. Swipe to traverse.
+    <button id="toggleDropdown">Select Letters</button>
+    <div id="letterDropdown" style="display:none; background:#fff; color:#000; padding:10px; border-radius:10px; max-height:300px; overflow-y:auto; margin-top:10px;">
+    <!-- Checkboxes will be added here -->
+      <button id="applySelection" style="margin-top:10px;">Apply</button>
+    </div>
   </div>
 
   <div class="card-container" id="cardContainer"></div>
-
 
   <script>
   const arabicLetters = [
