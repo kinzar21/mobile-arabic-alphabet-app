@@ -230,6 +230,21 @@
       -moz-appearance: none;
     }
 
+    #shuffleBtn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    #shuffleBtn svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    }
+
     #checkboxContainer {
       display: flex;
       flex-direction: column;
@@ -293,6 +308,12 @@
         <option value="shuffled">Out of order</option>
       </select>
     </div>
+
+    <button id="shuffleBtn" title="Shuffle Cards">
+      <svg viewBox="0 0 24 24">
+        <path fill="white" d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7c2.76 0 5 2.24 5 5a5 5 0 0 1-1.68 3.73l1.42 1.42A6.98 6.98 0 0 0 19 12c0-1.93-.78-3.68-2.05-4.95zM6.35 17.65A7.95 7.95 0 0 0 12 20v3l5-5-5-5v3c-2.76 0-5-2.24-5-5 0-1.38.56-2.63 1.46-3.54L5.64 8.64A6.978 6.978 0 0 0 5 12c0 1.93.78 3.68 2.05 4.95z"/>
+      </svg>
+    </button>
   </div>
 
   <div id="letterDropdown" class="dropdown-menu">
@@ -345,111 +366,110 @@
   ];
 
   let filteredLetters = [...arabicLetters];
-  let practiceMode = 'ordered';
+let practiceMode = 'ordered';
 
-  const container = document.getElementById('cardContainer');
-  let currentIndex = 0;
+const container = document.getElementById('cardContainer');
+let currentIndex = 0;
 
-  function createCard(letter) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-wrapper';
+// Show/Hide shuffle button based on practice mode
+document.getElementById('practiceMode').addEventListener('change', (e) => {
+  practiceMode = e.target.value;
+  applyPracticeMode();
+  renderCard(currentIndex);
 
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const inner = document.createElement('div');
-    inner.className = 'card-inner';
-
-    inner.innerHTML = `
-      <div class="card-front">
-        <div class="arabic-letter">${letter.arabic}</div>
-      </div>
-      <div class="card-back">
-        <div class="transliteration">${letter.transliteration}</div>
-        <button class="speaker-btn">
-          <svg class="speaker-icon" viewBox="0 0 24 24">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
-        </button>
-        <textarea class="notes-box" placeholder="Your notes"></textarea>
-      </div>
-    `;
-
-    card.appendChild(inner);
-    wrapper.appendChild(card);
-
-    wrapper.addEventListener('click', (e) => {
-      if (!e.target.closest('button') && !e.target.closest('textarea')) {
-        inner.classList.toggle('flipped');
-      }
-    });
-
-    inner.querySelector('.speaker-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      playAudio(letter.audioFile);
-    });
-
-    return wrapper;
+  // Show or hide shuffle button based on practice mode
+  if (practiceMode === 'shuffled') {
+    document.getElementById('shuffleBtn').style.display = 'inline-block'; // Show shuffle button
+  } else {
+    document.getElementById('shuffleBtn').style.display = 'none'; // Hide shuffle button
   }
+});
 
-  function renderCard(index) {
-    container.innerHTML = '';
-    if (filteredLetters.length === 0) {
-      container.innerHTML = `<div style="color:white;font-weight:bold;text-align:center;">No letters selected.</div>`;
-      return;
+// Shuffle the cards when the shuffle button is clicked
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  filteredLetters = shuffleArray(filteredLetters);
+  currentIndex = 0; // Reset to the first card
+  renderCard(currentIndex); // Re-render shuffled cards
+});
+
+function createCard(letter) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-wrapper';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+
+  inner.innerHTML = `
+    <div class="card-front">
+      <div class="arabic-letter">${letter.arabic}</div>
+    </div>
+    <div class="card-back">
+      <div class="transliteration">${letter.transliteration}</div>
+      <button class="speaker-btn">
+        <svg class="speaker-icon" viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+      </button>
+      <textarea class="notes-box" placeholder="Your notes"></textarea>
+    </div>
+  `;
+
+  card.appendChild(inner);
+  wrapper.appendChild(card);
+
+  wrapper.addEventListener('click', (e) => {
+    if (!e.target.closest('button') && !e.target.closest('textarea')) {
+      inner.classList.toggle('flipped');
     }
-    const card = createCard(filteredLetters[index]);
-    container.appendChild(card);
+  });
+
+  inner.querySelector('.speaker-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    playAudio(letter.audioFile);
+  });
+
+  return wrapper;
+}
+
+function renderCard(index) {
+  container.innerHTML = '';
+  if (filteredLetters.length === 0) {
+    container.innerHTML = `<div style="color:white;font-weight:bold;text-align:center;">No letters selected.</div>`;
+    return;
   }
+  const card = createCard(filteredLetters[index]);
+  container.appendChild(card);
+}
 
-  function playAudio(audioFile) {
-    new Audio(audioFile).play();
+function playAudio(audioFile) {
+  new Audio(audioFile).play();
+}
+
+function shuffleArray(arr) {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+  return shuffled;
+}
 
-  function setupSwipe() {
-    let startX = 0;
-    container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-    container.addEventListener('touchend', e => {
-      const endX = e.changedTouches[0].clientX;
-      if (endX - startX < -50) {
-        // Swipe left (forward)
-        if (currentIndex < filteredLetters.length - 1) {
-          currentIndex++;
-        } else {
-          currentIndex = 0; // loop back to start
-          showToast("Back to the beginning");
-        }
-        renderCard(currentIndex);
-      } else if (endX - startX > 50 && currentIndex > 0) {
-        // Swipe right (backward)
-        currentIndex--;
-        renderCard(currentIndex);
-      }
-    });
+function applyPracticeMode() {
+  if (practiceMode === 'shuffled') {
+    filteredLetters = shuffleArray(filteredLetters);
+  } else {
+    // Put them back in original order based on master list
+    filteredLetters = arabicLetters.filter(l =>
+      filteredLetters.find(f => f.arabic === l.arabic)
+    );
   }
+  currentIndex = 0;
+}
 
-  function showToast(message) {
-    const toast = document.createElement('div');
-    toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '2rem';
-    toast.style.left = '50%';
-    toast.style.transform = 'translateX(-50%)';
-    toast.style.background = 'rgba(0, 0, 0, 0.75)';
-    toast.style.color = 'white';
-    toast.style.padding = '0.75rem 1.25rem';
-    toast.style.borderRadius = '8px';
-    toast.style.fontWeight = 'bold';
-    toast.style.zIndex = '999';
-    toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.remove();
-    }, 2000); // Toast disappears after 2 seconds
-  }
-
-  function createLetterSelector() {
+function createLetterSelector() {
     const checkboxContainer = document.getElementById('checkboxContainer');
     checkboxContainer.innerHTML = ''; // clear previous checkboxes
     arabicLetters.forEach((letter, i) => {
@@ -486,44 +506,17 @@
     });
   }
 
-  function shuffleArray(arr) {
-    const shuffled = [...arr];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }
+    document.getElementById('selectLettersBtn').addEventListener('click', () => {
+      const dropdown = document.getElementById('letterDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
 
-  function applyPracticeMode() {
-    if (practiceMode === 'shuffled') {
-      filteredLetters = shuffleArray(filteredLetters);
-    } else {
-      // Put them back in original order based on master list
-      filteredLetters = arabicLetters.filter(l =>
-        filteredLetters.find(f => f.arabic === l.arabic)
-      );
-    }
-    currentIndex = 0;
-  }
-
-  document.getElementById('practiceMode').addEventListener('change', (e) => {
-    practiceMode = e.target.value;
-    applyPracticeMode();
-    renderCard(currentIndex);
-  });
-
-  document.getElementById('selectLettersBtn').addEventListener('click', () => {
-    const dropdown = document.getElementById('letterDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-  });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    createLetterSelector();
-    applyPracticeMode();
-    renderCard(currentIndex);
-    setupSwipe();
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+      createLetterSelector();
+      applyPracticeMode();
+      renderCard(currentIndex);
+      setupSwipe();
+    });
 
 </script>
 
