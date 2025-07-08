@@ -354,12 +354,36 @@
         label.innerHTML = `<input type="checkbox" data-index="${i}" checked> ${letter}`;
         container.appendChild(label);
       });
+
+      document.getElementById('selectAllBtn').addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('#checkboxContainer input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = true);
+
+        // Also check all vowel checkboxes
+        vowels.forEach(v => {
+          const checkbox = document.getElementById(v.checkboxId);
+          if (checkbox) checkbox.checked = true;
+        });
+      });
+
+      document.getElementById('deselectAllBtn').addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('#checkboxContainer input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+
+        // Also uncheck all vowel checkboxes
+        vowels.forEach(v => {
+          const checkbox = document.getElementById(v.checkboxId);
+          if (checkbox) checkbox.checked = false;
+        });
+      });
+
     }
 
     document.getElementById('selectLettersBtn').addEventListener('click', () => {
       const dropdown = document.getElementById('letterDropdown');
       dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     });
+    
 
     document.getElementById('applySelection').addEventListener('click', () => {
       generateFlashcards();
