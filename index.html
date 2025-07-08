@@ -448,6 +448,28 @@ function playAudio(audioFile) {
   new Audio(audioFile).play();
 }
 
+function setupSwipe() {
+    let startX = 0;
+    container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    container.addEventListener('touchend', e => {
+      const endX = e.changedTouches[0].clientX;
+      if (endX - startX < -50) {
+        // Swipe left (forward)
+        if (currentIndex < filteredLetters.length - 1) {
+          currentIndex++;
+        } else {
+          currentIndex = 0; // loop back to start
+          showToast("Back to the beginning");
+        }
+        renderCard(currentIndex);
+      } else if (endX - startX > 50 && currentIndex > 0) {
+        // Swipe right (backward)
+        currentIndex--;
+        renderCard(currentIndex);
+      }
+    });
+  }
+
 function shuffleArray(arr) {
   const shuffled = [...arr];
   for (let i = shuffled.length - 1; i > 0; i--) {
