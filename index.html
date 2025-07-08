@@ -448,27 +448,50 @@ function playAudio(audioFile) {
   new Audio(audioFile).play();
 }
 
+// Setup swipe functionality for touch events
 function setupSwipe() {
-    let startX = 0;
-    container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-    container.addEventListener('touchend', e => {
-      const endX = e.changedTouches[0].clientX;
-      if (endX - startX < -50) {
-        // Swipe left (forward)
-        if (currentIndex < filteredLetters.length - 1) {
-          currentIndex++;
-        } else {
-          currentIndex = 0; // loop back to start
-          showToast("Back to the beginning");
-        }
-        renderCard(currentIndex);
-      } else if (endX - startX > 50 && currentIndex > 0) {
-        // Swipe right (backward)
-        currentIndex--;
-        renderCard(currentIndex);
+  let startX = 0;
+  container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  container.addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+    if (endX - startX < -50) {
+      // Swipe left (forward)
+      if (currentIndex < filteredLetters.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0; // loop back to start
+        showToast("Back to the beginning");
       }
-    });
-  }
+      renderCard(currentIndex);
+    } else if (endX - startX > 50 && currentIndex > 0) {
+      // Swipe right (backward)
+      currentIndex--;
+      renderCard(currentIndex);
+    }
+  });
+}
+
+// Show a toast message (e.g., when looping back to the beginning)
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.position = 'fixed';
+  toast.style.bottom = '2rem';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  toast.style.background = 'rgba(0, 0, 0, 0.75)';
+  toast.style.color = 'white';
+  toast.style.padding = '0.75rem 1.25rem';
+  toast.style.borderRadius = '8px';
+  toast.style.fontWeight = 'bold';
+  toast.style.zIndex = '999';
+  toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 2000); // Toast disappears after 2 seconds
+}
 
 function shuffleArray(arr) {
   const shuffled = [...arr];
