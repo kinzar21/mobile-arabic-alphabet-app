@@ -454,17 +454,25 @@ function setupSwipe() {
   container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
   container.addEventListener('touchend', e => {
     const endX = e.changedTouches[0].clientX;
+
+    // Swipe left (forward)
     if (endX - startX < -50) {
-      // Swipe left (forward)
+      // If at the last card, wrap around to the first
       if (currentIndex < filteredLetters.length - 1) {
         currentIndex++;
       } else {
-        currentIndex = 0;
+        currentIndex = 0; // Wrap around to the first card
       }
       renderCard(currentIndex);
-    } else if (endX - startX > 50 && currentIndex > 0) {
-      // Swipe right (backward)
-      currentIndex--;
+    }
+    // Swipe right (backward)
+    else if (endX - startX > 50) {
+      // If at the first card, wrap around to the last
+      if (currentIndex > 0) {
+        currentIndex--;
+      } else {
+        currentIndex = filteredLetters.length - 1; // Wrap around to the last card
+      }
       renderCard(currentIndex);
     }
   });
