@@ -29,22 +29,6 @@
       z-index: 10;
     }
 
-    .visit-counter {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      z-index: 15;
-    }
-
     .card-container {
       position: relative;
       width: 90%;
@@ -329,19 +313,11 @@
       background-color: #6ac28b;
     }
 
-    .loading-counter {
-      opacity: 0.7;
-    }
-
   </style>
 </head>
 <body>
 
   <div class="card-header">Tap to flip. Swipe to traverse.</div>
-  
-  <div class="visit-counter" id="visitCounter">
-    <span class="loading-counter">Loading visits...</span>
-  </div>
 
   <div class="top-controls">
     <button id="selectLettersBtn">Select Letters</button>
@@ -411,190 +387,149 @@
   ];
 
   let filteredLetters = [...arabicLetters];
-  let practiceMode = 'ordered';
+let practiceMode = 'ordered';
 
-  const container = document.getElementById('cardContainer');
-  let currentIndex = 0;
+const container = document.getElementById('cardContainer');
+let currentIndex = 0;
 
-  // Count API Configuration
-  const COUNT_API_URL = 'https://api.countapi.xyz';
-  const APP_NAMESPACE = 'arabic-flashcards'; // You can change this to your preferred namespace
-  const VISIT_KEY = 'page-visits';
+// Show/Hide shuffle button based on practice mode
+document.getElementById('practiceMode').addEventListener('change', (e) => {
+  practiceMode = e.target.value;
+  applyPracticeMode();
+  renderCard(currentIndex);
 
-  // Initialize visit counter
-  async function initializeVisitCounter() {
-    try {
-      // Increment the visit count
-      const response = await fetch(`${COUNT_API_URL}/hit/${APP_NAMESPACE}/${VISIT_KEY}`);
-      const data = await response.json();
-      
-      if (data.value) {
-        updateVisitCounterDisplay(data.value);
+  // Show or hide shuffle button based on practice mode
+  if (practiceMode === 'shuffled') {
+    document.getElementById('shuffleBtn').style.display = 'inline-block'; // Show shuffle button
+  } else {
+    document.getElementById('shuffleBtn').style.display = 'none'; // Hide shuffle button
+  }
+});
+
+// Shuffle the cards when the shuffle button is clicked
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  filteredLetters = shuffleArray(filteredLetters);
+  currentIndex = 0; // Reset to the first card
+  renderCard(currentIndex); // Re-render shuffled cards
+});
+
+function createCard(letter) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-wrapper';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+
+  inner.innerHTML = `
+    <div class="card-front">
+      <div class="arabic-letter">${letter.arabic}</div>
+      <button class="speaker-btn-front">
+        <svg class="speaker-icon" viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="card-back">
+      <div class="transliteration">${letter.transliteration}</div>
+      <button class="speaker-btn">
+        <svg class="speaker-icon" viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+      </button>
+    </div>
+  `;
+
+  card.appendChild(inner);
+  wrapper.appendChild(card);
+
+  wrapper.addEventListener('click', (e) => {
+    if (!e.target.closest('button') && !e.target.closest('textarea')) {
+      inner.classList.toggle('flipped');
+    }
+  });
+
+  inner.querySelector('.speaker-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    playAudio(letter.audioFile);
+  });
+
+  inner.querySelector('.speaker-btn-front').addEventListener('click', (e) => {
+    e.stopPropagation();
+    playAudio(letter.audioFile);
+  });
+
+  return wrapper;
+}
+
+function renderCard(index) {
+  container.innerHTML = '';
+  if (filteredLetters.length === 0) {
+    container.innerHTML = `<div style="color:white;font-weight:bold;text-align:center;">No letters selected.</div>`;
+    return;
+  }
+  const card = createCard(filteredLetters[index]);
+  container.appendChild(card);
+}
+
+function playAudio(audioFile) {
+  new Audio(audioFile).play();
+}
+
+// Setup swipe functionality for touch events
+function setupSwipe() {
+  let startX = 0;
+  container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  container.addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+
+    // Swipe left (forward)
+    if (endX - startX < -50) {
+      // If at the last card, wrap around to the first
+      if (currentIndex < filteredLetters.length - 1) {
+        currentIndex++;
       } else {
-        throw new Error('No value returned from Count API');
+        currentIndex = 0; // Wrap around to the first card
       }
-    } catch (error) {
-      console.error('Error fetching visit count:', error);
-      // Fallback display if API fails
-      document.getElementById('visitCounter').innerHTML = '<span style="opacity: 0.7;">Visits: --</span>';
+      renderCard(currentIndex);
     }
-  }
-
-  function updateVisitCounterDisplay(count) {
-    const counter = document.getElementById('visitCounter');
-    counter.innerHTML = `<span>👁️ ${count.toLocaleString()} visits</span>`;
-  }
-
-  // Optional: Function to get visit count without incrementing
-  async function getVisitCount() {
-    try {
-      const response = await fetch(`${COUNT_API_URL}/get/${APP_NAMESPACE}/${VISIT_KEY}`);
-      const data = await response.json();
-      return data.value || 0;
-    } catch (error) {
-      console.error('Error getting visit count:', error);
-      return 0;
-    }
-  }
-
-  // Show/Hide shuffle button based on practice mode
-  document.getElementById('practiceMode').addEventListener('change', (e) => {
-    practiceMode = e.target.value;
-    applyPracticeMode();
-    renderCard(currentIndex);
-
-    // Show or hide shuffle button based on practice mode
-    if (practiceMode === 'shuffled') {
-      document.getElementById('shuffleBtn').style.display = 'inline-block'; // Show shuffle button
-    } else {
-      document.getElementById('shuffleBtn').style.display = 'none'; // Hide shuffle button
+    // Swipe right (backward)
+    else if (endX - startX > 50) {
+      // If at the first card, wrap around to the last
+      if (currentIndex > 0) {
+        currentIndex--;
+      } else {
+        currentIndex = filteredLetters.length - 1; // Wrap around to the last card
+      }
+      renderCard(currentIndex);
     }
   });
+}
 
-  // Shuffle the cards when the shuffle button is clicked
-  document.getElementById('shuffleBtn').addEventListener('click', () => {
+function shuffleArray(arr) {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function applyPracticeMode() {
+  if (practiceMode === 'shuffled') {
     filteredLetters = shuffleArray(filteredLetters);
-    currentIndex = 0; // Reset to the first card
-    renderCard(currentIndex); // Re-render shuffled cards
-  });
-
-  function createCard(letter) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-wrapper';
-
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const inner = document.createElement('div');
-    inner.className = 'card-inner';
-
-    inner.innerHTML = `
-      <div class="card-front">
-        <div class="arabic-letter">${letter.arabic}</div>
-        <button class="speaker-btn-front">
-          <svg class="speaker-icon" viewBox="0 0 24 24">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
-        </button>
-      </div>
-      <div class="card-back">
-        <div class="transliteration">${letter.transliteration}</div>
-        <button class="speaker-btn">
-          <svg class="speaker-icon" viewBox="0 0 24 24">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
-        </button>
-      </div>
-    `;
-
-    card.appendChild(inner);
-    wrapper.appendChild(card);
-
-    wrapper.addEventListener('click', (e) => {
-      if (!e.target.closest('button') && !e.target.closest('textarea')) {
-        inner.classList.toggle('flipped');
-      }
-    });
-
-    inner.querySelector('.speaker-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      playAudio(letter.audioFile);
-    });
-
-    inner.querySelector('.speaker-btn-front').addEventListener('click', (e) => {
-      e.stopPropagation();
-      playAudio(letter.audioFile);
-    });
-
-    return wrapper;
+  } else {
+    // Put them back in original order based on master list
+    filteredLetters = arabicLetters.filter(l =>
+      filteredLetters.find(f => f.arabic === l.arabic)
+    );
   }
+  currentIndex = 0;
+}
 
-  function renderCard(index) {
-    container.innerHTML = '';
-    if (filteredLetters.length === 0) {
-      container.innerHTML = `<div style="color:white;font-weight:bold;text-align:center;">No letters selected.</div>`;
-      return;
-    }
-    const card = createCard(filteredLetters[index]);
-    container.appendChild(card);
-  }
-
-  function playAudio(audioFile) {
-    new Audio(audioFile).play();
-  }
-
-  // Setup swipe functionality for touch events
-  function setupSwipe() {
-    let startX = 0;
-    container.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-    container.addEventListener('touchend', e => {
-      const endX = e.changedTouches[0].clientX;
-
-      // Swipe left (forward)
-      if (endX - startX < -50) {
-        // If at the last card, wrap around to the first
-        if (currentIndex < filteredLetters.length - 1) {
-          currentIndex++;
-        } else {
-          currentIndex = 0; // Wrap around to the first card
-        }
-        renderCard(currentIndex);
-      }
-      // Swipe right (backward)
-      else if (endX - startX > 50) {
-        // If at the first card, wrap around to the last
-        if (currentIndex > 0) {
-          currentIndex--;
-        } else {
-          currentIndex = filteredLetters.length - 1; // Wrap around to the last card
-        }
-        renderCard(currentIndex);
-      }
-    });
-  }
-
-  function shuffleArray(arr) {
-    const shuffled = [...arr];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }
-
-  function applyPracticeMode() {
-    if (practiceMode === 'shuffled') {
-      filteredLetters = shuffleArray(filteredLetters);
-    } else {
-      // Put them back in original order based on master list
-      filteredLetters = arabicLetters.filter(l =>
-        filteredLetters.find(f => f.arabic === l.arabic)
-      );
-    }
-    currentIndex = 0;
-  }
-
-  function createLetterSelector() {
+function createLetterSelector() {
     const checkboxContainer = document.getElementById('checkboxContainer');
     checkboxContainer.innerHTML = ''; // clear previous checkboxes
     arabicLetters.forEach((letter, i) => {
@@ -631,20 +566,17 @@
     });
   }
 
-  document.getElementById('selectLettersBtn').addEventListener('click', () => {
-    const dropdown = document.getElementById('letterDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-  });
+    document.getElementById('selectLettersBtn').addEventListener('click', () => {
+      const dropdown = document.getElementById('letterDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    createLetterSelector();
-    applyPracticeMode();
-    renderCard(currentIndex);
-    setupSwipe();
-    
-    // Initialize the visit counter
-    initializeVisitCounter();
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+      createLetterSelector();
+      applyPracticeMode();
+      renderCard(currentIndex);
+      setupSwipe();
+    });
 
 </script>
 
