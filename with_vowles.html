@@ -60,11 +60,10 @@
       justify-content: center;
       flex-direction: column;
       padding: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .card-front {
-      background: rgb(225, 225, 247);
+      background: linear-gradient(135deg, #f4fffa, #bbffe3);
       z-index: 2;
     }
 
@@ -101,8 +100,8 @@
 
     .speaker-btn {
       margin-top: 1rem;
-      background: #a0e5ba;
-      border: none;
+      background: rgba(255, 255, 255, 0.481);
+      border: 2px solid rgb(78, 50, 97);
       border-radius: 50%;
       width: 50px;
       height: 50px;
@@ -110,12 +109,44 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
 
     .speaker-icon {
       width: 24px;
       height: 24px;
       fill: #2d3748;
+    }
+
+    .speaker-btn:active {
+      transform: scale(0.9);
+    }
+
+    .speaker-btn-front {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.481);
+      border: 2px solid rgb(9, 84, 68);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .speaker-btn-front:active {
+      transform: scale(0.9);
+    }
+    
+    .speaker-btn-front .speaker-icon {
+      width: 20px;
+      height: 20px;
+      fill: rgb(10, 78, 52);
     }
 
     .card-header {
@@ -356,7 +387,14 @@
 
       const front = document.createElement('div');
       front.className = 'card-front';
-      front.innerHTML = `<div class="arabic-letter">${entry.arabic}</div>`;
+      front.innerHTML = `
+        <div class="arabic-letter">${entry.arabic}</div>
+        <button class="speaker-btn-front">
+        <svg class="speaker-icon" viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+      </button>
+       `;
 
       const back = document.createElement('div');
       back.className = 'card-back';
@@ -375,9 +413,15 @@
 
       // Toggle flip on inner container
       card.addEventListener('click', (e) => {
-        if (!e.target.closest('button') && !e.target.closest('textarea')) {
+        if (!e.target.closest('button')) {
           inner.classList.toggle('flipped');
         }
+      });
+
+      // Front Speaker button
+      front.querySelector('.speaker-btn-front').addEventListener('click', (e) => {
+        e.stopPropagation();
+        playAudio(entry.audioFile);
       });
 
       // Speaker button
